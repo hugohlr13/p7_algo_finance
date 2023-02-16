@@ -4,7 +4,9 @@ import itertools
 # Lecture du fichier contenant les informations sur les actions
 with open("actions.csv", "r") as f:
     reader = csv.reader(f)
+    next(reader)  # sauter la première ligne
     actions = [row for row in reader]
+
 
 # Convertir les coûts et bénéfices en nombres flottants
 for action in actions:
@@ -29,4 +31,6 @@ print("Meilleure combinaison :")
 for action in meilleure_combinaison:
     print(action[0])
 print("Meilleur profit :", meilleur_profit)
+
+
 
