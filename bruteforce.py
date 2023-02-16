@@ -1,5 +1,6 @@
 import csv
 import itertools
+import time
 
 # Lecture du fichier contenant les informations sur les actions
 with open("actions.csv", "r") as f:
@@ -16,6 +17,9 @@ for action in actions:
 meilleur_profit = 0
 meilleure_combinaison = []
 
+# Mesurer le temps de calcul
+start_time = time.time()
+
 # Parcourir toutes les combinaisons possibles
 for i in range(1, 21):
     for combinaison in itertools.combinations(actions, i):
@@ -30,7 +34,12 @@ for i in range(1, 21):
 print("Meilleure combinaison :")
 for action in meilleure_combinaison:
     print(action[0])
-print("Meilleur profit :", meilleur_profit)
+print("Meilleur profit après 2 ans (%) :", round(meilleur_profit, 2))
+
+# Afficher le temps de calcul
+print(f"Temps de calcul : {round(time.time() - start_time, 2)} secondes")
+
+
 
 
 
