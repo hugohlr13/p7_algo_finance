@@ -12,33 +12,39 @@ for action in actions:
     action[1] = float(action[1])
     action[2] = float(action[2].replace("%", "")) / 100
 
+meilleur_profit = 0
+meilleure_combinaison = []
+sac_a_dos = []
+
 # Mesurer le temps de calcul
 start_time = time.time()
 
-# Trier les actions par ordre de bénéfice décroissant
-actions_triees = sorted(actions, key=lambda action: action[2], reverse=True)
+for action in actions:
+    # mettre à jour les combinaisons précédentes dans le sac à dos
+    nouvelles_combinaisons = []
+    for combinaison, cout, benefice in sac_a_dos:
+        if cout + action[1] <= 500:
+            nouvelles_combinaisons.append((combinaison + [action[0]], cout + action[1], benefice + action[1] * action[2]))
+            if benefice + action[1] * action[2] > meilleur_profit:
+                meilleur_profit = benefice + action[1] * action[2]
+                meilleure_combinaison = combinaison + [action[0]]
 
-# Initialiser les tableaux des résultats partiels et finaux
-resultats_partiels = [0] * (500 + 1)
-resultats_finaux = [0] * (500 + 1)
+    sac_a_dos += nouvelles_combinaisons
 
-# Parcourir toutes les actions triées
-for action in actions_triees:
-    cout_action = int(action[1])
-    benefice_action = action[2]
-
-    # Mettre à jour les résultats partiels et finaux
-    for i in range(cout_action, 500 + 1):
-        nouveau_benefice = resultats_partiels[i - cout_action] + benefice_action
-        if nouveau_benefice > resultats_partiels[i]:
-            resultats_partiels[i] = nouveau_benefice
-            resultats_finaux[i] = (resultats_finaux[i - cout_action] + [action[0]])
+    # ajouter l'action courante dans le sac à dos si possible
+    if action[1] <= 500:
+        sac_a_dos.append(([action[0]], action[1], action[1] * action[2]))
+        if action[1] * action[2] > meilleur_profit:
+            meilleur_profit = action[1] * action[2]
+            meilleure_combinaison = [action[0]]
 
 # Afficher la meilleure combinaison et le meilleur profit
 print("Meilleure combinaison :")
-for action in resultats_finaux[-1]:
+for action in meilleure_combinaison:
     print(action)
-print("Meilleur profit après 2 ans (%) :", round(resultats_partiels[-1] * 100, 2))
+print("Meilleur profit après 2 ans (%):", round(meilleur_profit, 2))
 
 # Afficher le temps de calcul
 print(f"Temps de calcul : {round(time.time() - start_time, 2)} secondes")
+
+
