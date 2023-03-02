@@ -1,5 +1,8 @@
 import csv
 import time
+import psutil
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Lecture du fichier contenant les informations sur les actions
 with open("actions.csv", "r") as f:
@@ -19,7 +22,11 @@ sac_a_dos = []
 # Mesurer le temps de calcul
 start_time = time.time()
 
-for action in actions:
+# Mesurer l'utilisation de la mémoire vive
+memory_usage = [psutil.Process().memory_info().rss]
+
+# Mise en place de l'algorithme du sac à dos
+for i, action in enumerate(actions):
     # mettre à jour les combinaisons précédentes dans le sac à dos
     nouvelles_combinaisons = []
     for combinaison, cout, benefice in sac_a_dos:
@@ -37,6 +44,9 @@ for action in actions:
         if action[1] * action[2] > meilleur_profit:
             meilleur_profit = action[1] * action[2]
             meilleure_combinaison = [action[0]]
+    
+    # Mesurer l'utilisation de la mémoire vive
+    memory_usage.append(psutil.Process().memory_info().rss)
 
 # Afficher la meilleure combinaison et le meilleur profit
 print("Meilleure combinaison :")
@@ -46,5 +56,22 @@ print("Meilleur profit après 2 ans (%):", round(meilleur_profit, 2))
 
 # Afficher le temps de calcul
 print(f"Temps de calcul : {round(time.time() - start_time, 2)} secondes")
+
+# Créer une séquence de temps en secondes correspondant au nombre d'itérations de l'algorithme
+time_seq = np.arange(len(memory_usage)) * (time.time() - start_time) / len(memory_usage)
+
+# Afficher la courbe d'utilisation de la mémoire vive
+plt.plot(time_seq, memory_usage)
+plt.title("Courbe d'utilisation de la mémoire vive")
+plt.xlabel("Temps (secondes)")
+plt.ylabel("Mémoire utilisée (octets)")
+plt.show()
+
+
+
+
+
+
+
 
 
