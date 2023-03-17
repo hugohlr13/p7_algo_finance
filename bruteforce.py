@@ -4,56 +4,56 @@ import time
 import psutil
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-# Lecture du fichier contenant les informations sur les actions
+# Read the file containing the information on the actions
 with open("actions.csv", "r") as f:
     reader = csv.reader(f)
     next(reader)  # sauter la première ligne
-    actions = [row for row in reader]
+    actions = list(reader)
 
-# Convertir les coûts et bénéfices en nombres flottants
+# Convert costs and benefits to floating numbers
 for action in actions:
     action[1] = float(action[1])
-    action[2] = float(action[2].replace("%", "")) / 100
+    action[2] = float(action[2])
 
-meilleur_profit = 0
-meilleure_combinaison = []
+best_profit = 0
+best_combination = []
 
-# Mesurer le temps de calcul
+# Measuring the computing time
 start_time = time.time()
 
-# Mesurer l'utilisation de la mémoire vive
+# Measuring RAM usage
 memory_usage = [psutil.Process().memory_info().rss]
-time_usage = [0]
 
-# Parcourir toutes les combinaisons possibles
-for i in range(1, 21):
-    for combinaison in itertools.combinations(actions, i):
-        cout_total = sum(action[1] for action in combinaison)
-        if cout_total <= 500:
-            benefice_total = sum(action[1] * action[2] for action in combinaison)
-            if benefice_total > meilleur_profit:
-                meilleur_profit = benefice_total
-                meilleure_combinaison = combinaison
+# Browse all possible combinations
+for i in tqdm(range(1, len(actions) + 1)):
+    for combination in itertools.combinations(actions, i):
+        total_cost = sum(action[1] for action in combination)
+        if total_cost <= 500:
+            total_profit = sum(action[1] * (action[2]/100) for action in combination)
+            if total_profit > best_profit:
+                best_profit = total_profit
+                best_combination = combination
 
-    # Mesurer l'utilisation de la mémoire vive et le temps écoulé
+    # Measure RAM usage and elapsed time
     memory_usage.append(psutil.Process().memory_info().rss)
-    time_usage.append(time.time() - start_time)
 
-# Afficher la meilleure combinaison et le meilleur profit
+# Create a time sequence in seconds corresponding to the number of iterations of the algorithm
+time_seq = np.arange(len(memory_usage)) * (time.time() - start_time) / len(memory_usage)
+
+# Display the best combination and the best profit
 print("Meilleure combinaison :")
-for action in meilleure_combinaison:
+for action in best_combination:
     print(action[0])
-print("Meilleur profit après 2 ans (%) :", round(meilleur_profit, 2))
+print("Bénéfice de la combinaison :", round(best_profit, 2))
 
-# Afficher le temps de calcul
-print(f"Temps de calcul : {round(time.time() - start_time, 2)} secondes")
+# Display the calculation time
+print(f"Temps d'exécution : {round(time.time() - start_time, 2)} secondes")
 
-# Afficher la courbe d'utilisation de la mémoire vive
-plt.plot(time_usage, memory_usage)
+# Display the memory usage curve
+plt.plot(time_seq, memory_usage)
 plt.title("Courbe d'utilisation de la mémoire vive")
 plt.xlabel("Temps (secondes)")
 plt.ylabel("Mémoire utilisée (octets)")
 plt.show()
-
-
